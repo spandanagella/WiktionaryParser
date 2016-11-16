@@ -24,7 +24,7 @@ Current version hanfles, extracting translations for the word in other languages
     }],
     "etymology": "etymology text",
     "audioLinks": ["list of audio pronunciation links"]
-    "translations": {dict of translations as per language}
+    "translations": "dict of translations as per language"
 }]
 ```
 
@@ -59,14 +59,14 @@ Current version hanfles, extracting translations for the word in other languages
 
 ####DEMO
 python demo.py ride de,fr,es,nl,it
-
+```
 Output:
 de [u'reiten', u'fahren', u'fahren']
 fr [u'rouler', u'monter', u'chevaucher', u'monter', u'monter', u'conduire']
 es [u'montar', u'cabalgar', u'pasear', u'conducir']
 nl [u'rijden', u'rijden']
 it [u'cavalcare', u'guidare', u'andare in bici (page does not exist)', u'guidare', u'andare in macchina (page does not exist)']
-
+```
 
 ####Requirements
 
