@@ -68,6 +68,17 @@ nl [u'rijden', u'rijden']
 it [u'cavalcare', u'guidare', u'andare in bici (page does not exist)', u'guidare', u'andare in macchina (page does not exist)']
 ```
 
+python demo.py blow de,fr,es,nl,it,hi
+```
+de set([u'wehen', u'blasen', u'pusten'])
+fr set([u'souffler', u'faire chier', u'faire sauter', u'\xeatre nul', u'p\xe9ter'])
+es set([u'soplar', u'cagar', u'apestar', u'arruinar', u'reventar'])
+nl set([u'blazen', u'waaien'])
+it set([u'soffiare'])
+hi set([])
+```
+
+
 ####Requirements
 
  - requests==2.7.0
