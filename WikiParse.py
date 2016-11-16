@@ -188,7 +188,26 @@ class WiktionaryParser(object):
                                     definition_text,
                                     def_type))
         return definition_list
-    
+
+    def parse_span(self, tag):
+	language = None
+	if tag.get('lang') is not None:
+	    language = tag.get('lang')
+	word = ''
+	for atag in tag.find_all('a'):
+	    if atag is not None:
+		xword = self.parse_atag(atag)
+		if xword!='':
+		    word += ' '+xword
+		word = word.strip()
+	    #print atag , 'in', tag, language, word, xword
+	return language, word
+
+    def parse_atag(self, a_tag):
+	if a_tag.get('title') is not None and a_tag.get('class') is None:
+	    return a_tag.get('title')
+	return ''
+
     def parse_translations(self, translation_id_list = None):
 	#print translation_id_list
 	"""
@@ -207,24 +226,64 @@ class WiktionaryParser(object):
 		id_word_translations[tag_id] = {} #'index': trans_index}
 		index_word_translations[trans_index] = {}
 		for element in div_tag.find_all('li'):
-		    for span_tag in element.find_all('span'):
-			if span_tag.get('lang') is None:
+		    tags = []
+		    words = []
+		    word = ''
+		    language = ''
+		    for tag in element:
+			if tag.name is not None:
+			    xword = ''
+			    if tag.name == 'span':
+				languagex, xword = self.parse_span(tag)
+				if language == '' and languagex is not None:
+				    language += languagex	
+			    if tag.name == 'a':
+				xword = self.parse_atag(tag)
+			    tags.append(tag.name)
+			    words.append(xword)
+		    filtered_words = []
+		    append_word = ''
+		    for tword, tname in zip(words, tags):
+			append_word = append_word.strip()
+			if tword == '' and tname == 'span' and len(append_word)>0:
+			    filtered_words.append(append_word.strip())
+			    append_word = ''
+			else:
+			    append_word += ' '+tword.strip()
+			append_word = append_word.strip()
+		    if len(append_word.strip())>0:
+			filtered_words.append(append_word)
+		    #print language, filtered_words
+		    if len(filtered_words)>0:
+			if not id_word_translations[tag_id].has_key(language):
+			    id_word_translations[tag_id][language] = []
+			if not index_word_translations[trans_index].has_key(language):
+			    index_word_translations[trans_index][language] = []
+			id_word_translations[tag_id][language].extend(filtered_words)
+			index_word_translations[trans_index][language].extend(filtered_words)
+		    continue
+		    lang_word = ''
+		    for tag in element.find_all('span'):
+			#print tag
+			if tag.get('lang') is None:
 			    continue
-			href_element = span_tag.find('a')
-			if href_element is not None:
-			    language = span_tag.get('lang')
-			    if not id_word_translations[tag_id].has_key(language):
-			        id_word_translations[tag_id][language] = []
-			    if not index_word_translations[trans_index].has_key(language):
-			        index_word_translations[trans_index][language] = []
-			    id_word_translations[tag_id][language].append(href_element.get('title'))
-			    #if language == 'de':
-			    #    print trans_index, span_tag.get('lang'), href_element.get('title')	
-			    index_word_translations[trans_index][language].append(href_element.get('title'))
+			language = tag.get('lang')
+			if language == '':
+				continue
+			for href_element in tag.find_all('a'):
+			    if href_element is not None:
+			        if not id_word_translations[tag_id].has_key(language):
+			            id_word_translations[tag_id][language] = []
+			        if not index_word_translations[trans_index].has_key(language):
+			            index_word_translations[trans_index][language] = []
+			        if language == 'fr':
+			           print tag_id, trans_index, language, href_element.get('title'), tag
+				if href_element.get('title') not in lang_word:
+				    lang_word = '%s %s' %(lang_word, href_element.get('title'))
+			id_word_translations[tag_id][language].append(lang_word.strip())
+			index_word_translations[trans_index][language].append(lang_word.strip())
+			lang_word = ''
 	    break
-	#for index in index_word_translations.keys():
-	#    if index_word_translations[index].has_key('de'):
-	#	#print index, index_word_translations[index]['de']
 	return id_word_translations
 		
 
